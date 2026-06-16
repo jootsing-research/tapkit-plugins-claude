@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/jootsing-research-tapkit-plugins-claude-badge.png)](https://mseep.ai/app/jootsing-research-tapkit-plugins-claude)
+
 # TapKit Plugin Marketplace for Claude
 
 Control a physical iPhone from Claude. Take screenshots, tap, swipe, type, and navigate apps — all through natural language.
