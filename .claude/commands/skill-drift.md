@@ -22,9 +22,9 @@ This command is **read-only**. Do not edit, add, or delete any files. Only repor
 
 1. **Inventory both sides.**
    - Local skills: every directory under `plugins/tapkit/skills/` (each contains a `SKILL.md`).
-   - Upstream skills: list `skills/` on `main` of `jootsing-research/skills`:
+   - Upstream skills: list `skills/` on `master` of `jootsing-research/skills`:
      ```
-     gh api repos/jootsing-research/skills/contents/skills?ref=main --jq '.[] | select(.type=="dir") | .name'
+     gh api "repos/jootsing-research/skills/contents/skills?ref=master" --jq '.[] | select(.type=="dir") | .name'
      ```
 
 2. **Compare inventories.** Identify:
@@ -32,7 +32,7 @@ This command is **read-only**. Do not edit, add, or delete any files. Only repor
    - Skills present **locally but missing upstream** → unexpected drift; flag for review.
 
 3. **Diff each shared skill's `SKILL.md`.** For every skill that exists in both, fetch the upstream contents and diff against the local file. Use parallel WebFetch calls for the raw URLs to keep this fast:
-   `https://raw.githubusercontent.com/jootsing-research/skills/main/skills/<skill>/SKILL.md`
+   `https://raw.githubusercontent.com/jootsing-research/skills/master/skills/<skill>/SKILL.md`
    Then read the local file at `plugins/tapkit/skills/<skill>/SKILL.md` and compare.
 
    For each diff, **summarize what changed** — do not dump full file contents. Classify each change as one of:
