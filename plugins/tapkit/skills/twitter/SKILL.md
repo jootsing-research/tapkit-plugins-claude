@@ -13,6 +13,14 @@ X (formerly Twitter) is a social media platform for short-form posts, news, and 
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
+For every text-entry action, focus the correct field and verify focus with `screenshot(phone_id)`, then call `copy_text_to_phone(phone_id, text)`, long-press (~1500ms) the target field near the caret, tap **Paste** in the tooltip, then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry with submission in one step.
+
+## X Chat Passcode Boundary
+
+- Never enter, configure, change, infer, store, repeat, reveal, or otherwise handle an X Chat passcode.
+- If X or iOS presents any passcode creation, entry, recovery, or confirmation screen, stop immediately and hand control to the user. Do not type into the passcode field, inspect the entered value, take a screenshot that exposes it, or narrate it.
+- Resume only after the user confirms they completed the passcode step and a screenshot verifies that no passcode or recovery secret is visible. If X Chat remains unavailable, report that limitation without attempting a workaround.
+
 ## App Structure
 
 ### Bottom Navigation Bar
@@ -118,12 +126,12 @@ Globe dropdown (country selector), category cards, topic pills, "Popular today" 
 
 ### Search Flow
 
-1. `copy_text_to_phone("query")`
-2. Tap search bar → keyboard appears
+1. Tap the search bar → screenshot to verify the field is focused
+2. `copy_text_to_phone(phone_id, "query")`
 3. `long_press` the search field (~1500ms) → tap "Paste" in the tooltip
-4. Autocomplete shows suggestions (keywords, topics, accounts)
-5. Tap "search" on keyboard for full results
-6. Results have tabs: Top, Latest, People, Videos, Photos
+4. `screenshot(phone_id)` → verify the rendered query and expected autocomplete suggestions (keywords, topics, accounts)
+5. Do not submit automatically. Only if the user explicitly authorized running the search and verification succeeded, tap "search" on the keyboard
+6. `screenshot(phone_id)` → verify results have tabs: Top, Latest, People, Videos, Photos
 
 ### Search Result Tabs
 
@@ -153,7 +161,7 @@ Two tabs: **All** (all notification types) and **Mentions** (posts that @mention
 
 ## Messages (X Chat)
 
-Requires passcode setup on first access. After setup: conversation list with compose icon for new messages. If passcode isn't set up, sharing posts shows "X Chat Required" prompt.
+X Chat may require passcode setup or entry before showing the conversation list. If any such screen appears, stop and hand control to the user under the passcode boundary above. Do not configure or enter the passcode. If sharing a post produces an "X Chat Required" prompt, do not continue through setup; tell the user that X Chat must be unlocked by them before the requested share can proceed. After the user has unlocked X Chat: conversation list with compose icon for new messages.
 
 ## Profile Page
 
@@ -223,7 +231,7 @@ Shows original post at top, "Replying to @handle", "Post your reply" placeholder
 
 ### Browse the Feed
 ```
-1. open_app("Twitter") → screenshot to verify
+1. open_app("Twitter") → screenshot(phone_id) to verify. If open_app fails, press_home(phone_id) → screenshot → visually locate and tap the X icon; use App Library if it is not visible
 2. "For you" tab should be selected by default
 3. Swipe up from center of screen to scroll down
 4. screenshot → verify new posts loaded
@@ -246,45 +254,54 @@ Shows original post at top, "Replying to @handle", "Post your reply" placeholder
 
 ### Reply to a Post
 ```
-1. copy_text_to_phone("your reply")
-2. Tap the reply icon (speech bubble) on the engagement bar
-3. screenshot → verify reply compose with "Replying to @handle"
-4. long_press on the reply text field (1500ms) → tap "Paste" in the tooltip
-5. Tap "Post" button (top-right)
-6. screenshot → verify reply posted
+1. Tap the reply icon (speech bubble) on the engagement bar
+2. screenshot → verify reply compose with "Replying to @handle"
+3. Tap the reply text field → screenshot to verify focus
+4. copy_text_to_phone(phone_id, "your reply")
+5. long_press the reply text field (~1500ms) → tap "Paste" in the tooltip
+6. screenshot(phone_id) → verify the rendered reply and target post
+7. Only if the user explicitly authorized posting this exact reply and verification succeeded, tap "Post" (top-right)
+8. screenshot(phone_id) → verify the reply posted
 ```
 
 ### Quote a Post
 ```
-1. copy_text_to_phone("your comment")
-2. Tap the repost icon on the engagement bar
-3. Tap "Quote" from the menu
-4. screenshot → verify quote compose with embedded post
-5. long_press on the "Add a comment" field (1500ms) → tap "Paste" in the tooltip
-6. Tap "Post" button (top-right)
-7. screenshot → verify
+1. Tap the repost icon on the engagement bar
+2. Tap "Quote" from the menu
+3. screenshot → verify quote compose with embedded post
+4. Tap the "Add a comment" field → screenshot to verify focus
+5. copy_text_to_phone(phone_id, "your comment")
+6. long_press the "Add a comment" field (~1500ms) → tap "Paste" in the tooltip
+7. screenshot(phone_id) → verify the rendered comment and embedded post
+8. Only if the user explicitly authorized publishing this exact quote post and verification succeeded, tap "Post" (top-right)
+9. screenshot(phone_id) → verify it published
 ```
 
 ### Compose a New Post
 ```
-1. copy_text_to_phone("your post")
-2. Tap the blue "+" button (bottom-right)
-3. screenshot → verify compose screen
-4. long_press on the "What's happening?" text area (1500ms) → tap "Paste" in the tooltip
-5. Tap "Post" button (top-right)
-6. screenshot → verify post published
+1. Tap the blue "+" button (bottom-right)
+2. screenshot → verify compose screen
+3. Tap the "What's happening?" text area → screenshot to verify focus
+4. copy_text_to_phone(phone_id, "your post")
+5. long_press the text area (~1500ms) → tap "Paste" in the tooltip
+6. screenshot(phone_id) → verify the rendered post text
+7. Only if the user explicitly authorized publishing this exact post and verification succeeded, tap "Post" (top-right)
+8. screenshot(phone_id) → verify the post published
 ```
 
 ### Create a Thread
 ```
-1. copy_text_to_phone("First post")
-2. Tap the blue "+" button
-3. long_press on the text area (1500ms) → tap "Paste"
-4. Tap the "+" thread button in toolbar
-5. screenshot → verify second compose area, button says "Post all"
-6. copy_text_to_phone("Second post")
-7. long_press on the new text area (1500ms) → tap "Paste"
-8. Tap "Post all" (top-right)
+1. Tap the blue "+" button
+2. Tap the text area to focus it
+3. copy_text_to_phone(phone_id, "First post") → long_press the text area (~1500ms) → tap "Paste"
+4. screenshot(phone_id) → verify the rendered first post
+5. Tap the "+" thread button in toolbar
+6. screenshot(phone_id) → verify the second compose area and "Post all" button
+7. Tap the new text area to focus it
+8. copy_text_to_phone(phone_id, "Second post") → long_press the new text area (~1500ms) → tap "Paste"
+9. screenshot(phone_id) → verify the rendered second post and full thread draft
+10. Only if the user explicitly authorized publishing this exact thread and all verification succeeded, tap "Post all" (top-right)
+11. screenshot(phone_id) → verify the thread published
 ```
 
 ### Create a Poll
@@ -292,20 +309,22 @@ Shows original post at top, "Replying to @handle", "Post your reply" placeholder
 1. Tap the blue "+" button
 2. Tap the Poll icon (bars) in toolbar
 3. screenshot → verify poll fields appeared
-4. copy_text_to_phone("Your question") → long_press the question field (1500ms) → tap "Paste"
-5. copy_text_to_phone("Option A") → long_press Choice 1 field (1500ms) → tap "Paste"
-6. copy_text_to_phone("Option B") → long_press Choice 2 field (1500ms) → tap "Paste"
-7. Tap "Post" (top-right)
+4. Tap the question field to focus it → copy_text_to_phone(phone_id, "Your question") → long_press (~1500ms) → tap "Paste" → screenshot(phone_id) → verify the rendered question
+5. Tap the Choice 1 field to focus it → copy_text_to_phone(phone_id, "Option A") → long_press (~1500ms) → tap "Paste" → screenshot(phone_id) → verify the rendered choice
+6. Tap the Choice 2 field to focus it → copy_text_to_phone(phone_id, "Option B") → long_press (~1500ms) → tap "Paste" → screenshot(phone_id) → verify the rendered choice
+7. Only if the user explicitly authorized publishing this exact poll and all verification succeeded, tap "Post" (top-right)
+8. screenshot(phone_id) → verify the poll published
 ```
 
 ### Search for Content
 ```
-1. copy_text_to_phone("search query")
-2. Tap the Search icon in bottom nav
-3. Tap the search bar
-4. long_press the search field (1500ms) → tap "Paste" in the tooltip
-5. Tap "search" on keyboard
-6. screenshot → verify results with Top/Latest/People/Videos/Photos tabs
+1. Tap the Search icon in bottom nav
+2. Tap the search bar → screenshot to verify focus
+3. copy_text_to_phone(phone_id, "search query")
+4. long_press the search field (~1500ms) → tap "Paste" in the tooltip
+5. screenshot(phone_id) → verify the rendered query and expected autocomplete suggestions
+6. Do not submit automatically. Only if the user explicitly authorized running the search and verification succeeded, tap "search" on the keyboard
+7. screenshot(phone_id) → verify results with Top/Latest/People/Videos/Photos tabs
 ```
 
 ### View a Profile

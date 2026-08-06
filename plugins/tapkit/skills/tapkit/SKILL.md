@@ -30,9 +30,10 @@ Use the REST API with `https://api.tapkit.ai/v1` and the `X-API-Key` header:
 
 Always prefer a direct tool over manual navigation:
 
-- **Opening apps**: call `open_app(phone_id, "Settings")` — don't scroll through home screens looking for the icon
+- **Opening apps**: call `open_app(phone_id, "Settings")` — don't scroll through home screens looking for the icon. If `open_app` fails on a device, fall back to `press_home`, screenshot, and tap the visible app icon; if the icon is not visible, swipe left through the Home Screen pages to App Library, focus its search field, enter the app name with the clipboard flow (see **Text Input**), screenshot and verify the rendered query, then tap the matching result.
 - **Searching the phone**: call `spotlight(phone_id, "calculator")` — don't swipe down and hunt visually
 - **Going home**: call `press_home(phone_id)` — don't swipe up from the bottom
+- **Entering text**: use the clipboard flow in **Text Input** — load text with `copy_text_to_phone`, paste it into the focused field, then screenshot and verify the rendered text. Stop before submission.
 
 Only use tap/swipe navigation for things **inside** an app where no tool shortcut exists.
 
@@ -41,13 +42,15 @@ Only use tap/swipe navigation for things **inside** an app where no tool shortcu
 Your workflow is always: **screenshot → look → act → screenshot to verify**.
 
 1. Take a `screenshot(phone_id)` to see what's on screen
-2. Visually identify the element you need to interact with
+2. Visually identify the element you need to interact with from its current visible label, icon, and surrounding context
 3. Estimate the pixel coordinates of its **center**
 4. Call the appropriate tool (tap, swipe, copy_text_to_phone, etc.)
 5. Take another `screenshot` to confirm the action worked
 6. If it didn't work, try a different approach
 
 **Always screenshot before and after actions.** You have no other way to see the phone — no accessibility tree, no DOM, no element selectors. Everything is visual + coordinates.
+
+**Never reuse remembered tap points or assume the interface is unchanged.** Targets come from the current screenshot, not from earlier ones or from memorized coordinates.
 
 ## Coordinate System
 
@@ -94,7 +97,7 @@ Screenshots are resized so you see them at the same resolution as the coordinate
 - **Dismiss a modal/popup**: look for "X", "Cancel", "Done", or tap outside it
 - **Pull to refresh**: `drag(phone_id, 300, 200, 300, 600)` (drag down from top of content area)
 - **Switch apps**: `swipe(phone_id, 300, 1300, "up")` (swipe up from bottom)
-- **Close keyboard**: call `escape(phone_id)`, tap anywhere outside the keyboard, or `press_home(phone_id)`
+- **Close keyboard**: call `escape(phone_id)`, tap a visible keyboard-dismiss control, or tap an area outside the text field. Use "Done" only when it clearly dismisses the keyboard without submitting the field
 - **Tab bars** at the bottom of apps are the main navigation — tap the icons to switch sections
 - **iOS alerts** (permissions, confirmations) appear as centered popups — tap "Allow", "OK", etc.
 
@@ -102,13 +105,21 @@ Screenshots are resized so you see them at the same resolution as the coordinate
 
 TapKit cannot press individual keyboard keys reliably. Instead, typing is done via the **clipboard**: load text with `copy_text_to_phone`, then paste it into a text field using iOS's paste UI.
 
+Use this contract for every text-entry workflow:
+
+1. **Load the text onto the clipboard.** Call `copy_text_to_phone(phone_id, text)`.
+2. **Focus the correct field.** Tap or long-press it and screenshot to verify focus.
+3. **Paste the text.** Long-press (~1500ms) the field near the caret to bring up the **Paste** tooltip, then tap **Paste**.
+4. **Verify the rendered text.** Take a screenshot and inspect the complete value, destination field, and any truncation or autocorrection.
+5. **Stop before submission.** Do not automatically tap Search, Send, Post, Save, Done, or any equivalent control. Submission must be a separate step that the user explicitly authorized, and only after the rendered text is correct.
+
 ### Typing into an Empty/Inactive Text Field
 
 1. **Load text onto the clipboard:** `copy_text_to_phone(phone_id, "Your message here")`
 2. **Long press on the text field** for ~1500ms. This activates the field, brings up the keyboard, and shows the **Paste** tooltip: `long_press(phone_id, x, y, duration: 1500)`
 3. **Tap "Paste"** in the tooltip that appears above the text field
-4. **Screenshot to verify** the text was pasted correctly
-5. To submit: tap the blue button on the keyboard (it says "Search", "Go", "Send", or "Done" depending on context). It's usually in the bottom-right area of the keyboard
+4. **Screenshot to verify** the complete text was pasted correctly
+5. **Stop before submission.** The blue keyboard action button ("Search", "Go", "Send", or "Done", usually bottom-right of the keyboard) or an app submit control may only be used as a separate, explicitly authorized step after verification.
 
 ### Replacing Existing Text
 
@@ -119,6 +130,8 @@ To replace text already in a field, use the **Select All + Paste** workflow:
 3. **Tap on an unhighlighted part** of the text field (a different spot from the selected word) — this shows the menu with **Select All**: `tap(phone_id, x, y)`
 4. **Tap "Select All"** to highlight everything
 5. **Tap "Paste"** to replace all selected text with clipboard contents
+6. **Screenshot** to verify the selected text was replaced with the complete new value
+7. **Stop before submission.** Do not confirm or save the change automatically.
 
 ### Clearing a Text Field
 
@@ -127,6 +140,8 @@ Use **Select All + Cut**:
 2. Tap on unhighlighted text to get the "Select All" option
 3. Tap "Select All"
 4. Tap "Cut"
+5. Screenshot to verify the field is empty
+6. Stop before confirming or saving the change
 
 ### Text Selection Reference
 
@@ -152,7 +167,7 @@ open_app(phone_id, "Settings") → screenshot(phone_id) to verify it opened
 
 **Searching within an app:**
 ```
-copy_text_to_phone(phone_id, "query") → long_press(phone_id, x, y, 1500) → tap "Paste" → tap Search button on keyboard → screenshot
+copy_text_to_phone(phone_id, "query") → long_press(phone_id, x, y, 1500) on the search field → tap "Paste" → screenshot and verify rendered query → stop before Search unless explicitly authorized
 ```
 
 **Scrolling through a list:**
@@ -169,6 +184,7 @@ screenshot(phone_id) → identify the popup → tap(phone_id, x, y) on the appro
 
 - **Be precise with coordinates.** Off by 50px can mean tapping the wrong element
 - **Always verify with screenshots.** Never assume an action succeeded
+- **Never combine text entry with submission.** Verify rendered text first; submit only as a separate, explicitly authorized action
 - **Apps take 1-2 seconds to load.** If a screenshot looks unchanged after tapping an app icon, take another screenshot — it may still be loading
 - **If something doesn't work after 2-3 tries, try a different approach.** Don't keep tapping the same spot
 - **You cannot handle Face ID, CAPTCHAs, or biometric prompts.** Tell the user if you encounter these
