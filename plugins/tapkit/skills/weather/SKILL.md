@@ -14,7 +14,7 @@ Before acting, follow the core TapKit setup: `list_phones()` -> choose `phone_id
 For every text-entry action:
 
 1. Focus the correct field using its visible label and the current screenshot.
-2. Call `copy_text_to_phone(phone_id, text)`, then `long_press` on the focused field (duration: 1500) and tap **"Paste"** in the tooltip that appears. Don't try to tap individual keyboard keys.
+2. Call `type_text(phone_id, text)`.
 3. Call `screenshot(phone_id)` and visually verify the rendered text in the intended field.
 4. Stop before tapping Search, Add, Save, Done, Confirm, or an equivalent action.
 5. Perform the separate action only when the user explicitly authorized that exact action and the visual verification succeeded.
@@ -38,10 +38,11 @@ Follow these rules throughout the task:
 
 ## Open Weather
 
-1. Call `open_app("Weather")` and take a screenshot to verify that Weather opened.
-2. If `open_app` fails, call `press_home(phone_id)`, take a screenshot, locate the Weather icon in the current screenshot, and tap its derived center point. If it is not visible, open App Library, take another screenshot, locate the labeled Weather icon, and tap its derived center point.
-3. Take a screenshot and verify that Weather opened.
-4. Resolve the city using **Privacy and City Scope** before reading or reporting conditions.
+1. Call `press_home(phone_id)` and take a screenshot.
+2. Locate the Weather icon in the current screenshot and tap its derived center point.
+3. If it is not visible, open App Library, take another screenshot, locate the labeled Weather icon, and tap its derived center point.
+4. Take a screenshot and verify that Weather opened.
+5. Resolve the city using **Privacy and City Scope** before reading or reporting conditions.
 
 ## App Structure
 
@@ -122,7 +123,7 @@ The user's request for weather in an exact city authorizes looking up that city,
 
 1. Open City List and take a screenshot.
 2. Locate **Search for a city or airport** from the screenshot and tap its derived center point to focus it.
-3. Call `copy_text_to_phone(phone_id, user_supplied_city)`, then `long_press` the search field (duration: 1500) and tap **"Paste"** in the tooltip.
+3. Call `type_text(phone_id, user_supplied_city)`.
 4. Take a screenshot and verify both the rendered query and the intended autocomplete result. Ignore all unrelated cards and results.
 5. If the result is ambiguous, stop and ask the user for a state, region, or country.
 6. If the exact result is verified, tap it because the user's city-specific lookup request authorized that navigation.
@@ -135,7 +136,7 @@ Proceed only when the user explicitly asks to add an exact city.
 
 1. Open City List and take a screenshot.
 2. Locate and focus **Search for a city or airport** using the current screenshot.
-3. Call `copy_text_to_phone(phone_id, exact_city)`, then `long_press` the search field (duration: 1500) and tap **"Paste"** in the tooltip.
+3. Call `type_text(phone_id, exact_city)`.
 4. Take a screenshot and verify the rendered query and exact matching result.
 5. If multiple results could match, stop and ask the user to disambiguate.
 6. Tap the exact result only after verification; the current explicit add request authorizes this navigation.

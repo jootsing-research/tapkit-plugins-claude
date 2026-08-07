@@ -20,12 +20,11 @@ Never reuse remembered tap points or assume the interface is unchanged.
 
 For every text entry:
 
-1. Call `copy_text_to_phone(phone_id, text)` to load the text onto the phone clipboard.
-2. Focus the correct field and verify focus with a screenshot.
-3. Long-press (~1500ms) the field near the caret and tap **Paste** in the tooltip that appears.
-4. Take a screenshot and verify the complete rendered text in the intended field.
-5. Stop before submission.
-6. Use **Search**, **Save**, **Done**, Return, a checkmark, or an equivalent submission control only as a separate step that the user explicitly authorized after the rendered text was verified.
+1. Focus the correct field and verify focus with a screenshot.
+2. Call `type_text(phone_id, text)`.
+3. Take a screenshot and verify the complete rendered text in the intended field.
+4. Stop before submission.
+5. Use **Search**, **Save**, **Done**, Return, a checkmark, or an equivalent submission control only as a separate step that the user explicitly authorized after the rendered text was verified.
 
 ### Existing alarm and schedule confirmation gate
 
@@ -43,14 +42,13 @@ Material changes include deletion, time, AM/PM, repeat days, label, sound, hapti
 
 ## Open Clock
 
-**Bundle ID:** `com.apple.mobiletimer`
+**Bundle ID:** `com.apple.mobiletimer` (informational)
 
-1. Call `open_app(phone_id, "Clock")` and take a screenshot to verify the app opened.
-2. If `open_app` does not work on this device, call `press_home(phone_id)` and take a screenshot.
-3. If **Clock** is visible, tap that currently observed icon and verify the app opened.
-4. Otherwise, navigate visually to App Library, focus its search field, and follow the text-entry contract with `Clock`.
-5. After verifying the rendered query and matching **Clock** result, tap that result only when opening Clock is authorized.
-6. Verify that Clock opened.
+1. Call `press_home(phone_id)` and take a screenshot.
+2. If **Clock** is visible, tap that currently observed icon and verify the app opened.
+3. Otherwise, navigate visually to App Library, focus its search field, and follow the text-entry contract with `Clock`.
+4. After verifying the rendered query and matching **Clock** result, tap that result only when opening Clock is authorized.
+5. Verify that Clock opened.
 
 Use the visible bottom-tab labels to navigate among **World Clock**, **Alarms**, **Stopwatch**, and **Timers**. Always locate the tab in the current screenshot.
 

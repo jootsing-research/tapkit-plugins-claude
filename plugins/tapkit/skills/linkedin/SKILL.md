@@ -11,7 +11,7 @@ LinkedIn is a professional networking platform. Users browse a feed of professio
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text entry, focus the intended field and verify focus with a screenshot, then call `copy_text_to_phone(phone_id, text)`, long-press (~1500ms) the target field near the caret, and tap **Paste** in the tooltip. Take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, **Comment**, Return, or an equivalent submission control unless the user explicitly authorized that submission and visual verification succeeded. Never combine text entry with submission in one step.
+For every text entry, focus the intended field and verify focus with a screenshot, then call `type_text(phone_id, text)`. Take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, **Comment**, Return, or an equivalent submission control unless the user explicitly authorized that submission and visual verification succeeded. Never combine text entry with submission in one step.
 
 ## Privacy-Minimized Previews and Final Confirmation
 
@@ -136,7 +136,7 @@ Opened by tapping the Comment button on a post. Appears as a bottom half-sheet t
   - **"Comment"** button (right, grayed out when empty, active when text entered)
 - Keyboard appears when text field is tapped
 
-To prepare a comment, tap the text field to focus it, call `copy_text_to_phone(phone_id, "your comment")`, long-press the field (~1500ms) and tap "Paste" in the tooltip, then take a fresh screenshot and verify the intended post and exact comment. Present the privacy-minimized preview and request explicit final confirmation. Only after that confirmation, tap the "Comment" button.
+To prepare a comment, tap the text field to focus it, call `type_text(phone_id, "your comment")`, then take a fresh screenshot and verify the intended post and exact comment. Present the privacy-minimized preview and request explicit final confirmation. Only after that confirmation, tap the "Comment" button.
 
 To dismiss: swipe down on the handle bar, or tap outside the sheet (above it on the post).
 
@@ -671,13 +671,15 @@ Divider
 
 ### Browse the Home Feed
 ```
-1. open_app("LinkedIn") → screenshot to verify LinkedIn opened
-2. Fallback if open_app fails: `press_home(phone_id)` → screenshot; if the
-   **LinkedIn** icon is visible, tap it; otherwise swipe left to the App Library
-   and visually locate LinkedIn by its icon, then tap it
-3. Home tab should be selected by default
-4. Scroll by swiping up from center of screen
-5. screenshot → verify the feed loaded without transcribing or summarizing incidental feed, sponsored, profile, recommendation, or personal data
+1. `press_home(phone_id)` → screenshot
+2. If **LinkedIn** is visible, tap it; otherwise, swipe left to the App Library and tap its search field to focus it
+3. If using App Library search, call `type_text(phone_id, "LinkedIn")`
+4. If using App Library search, take a screenshot and verify **LinkedIn** rendered correctly and the intended app result is visible
+5. Only if the user explicitly authorized opening LinkedIn and visual verification succeeded, tap that App Library result
+6. screenshot → verify LinkedIn opened
+7. Home tab should be selected by default
+8. Scroll by swiping up from center of screen
+9. screenshot → verify the feed loaded without transcribing or summarizing incidental feed, sponsored, profile, recommendation, or personal data
 ```
 
 ### Like a Post
@@ -700,13 +702,12 @@ Divider
 1. Tap "Comment" button on the post
 2. screenshot → verify comment section opened as bottom sheet
 3. Tap the "Leave your thoughts here..." text field to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "your comment")
-5. long_press the text field near the caret (duration: 1500) → tap "Paste" in the tooltip
-6. Take a fresh screenshot and verify the intended post and exact comment rendered correctly
-7. Present a privacy-minimized preview containing only the intended post or comment and the final comment text
-8. Ask for explicit final confirmation and wait
-9. Only after confirmation, tap the "Comment" button
-10. Take a screenshot and verify the comment appeared
+4. Call `type_text(phone_id, "your comment")`
+5. Take a fresh screenshot and verify the intended post and exact comment rendered correctly
+6. Present a privacy-minimized preview containing only the intended post or comment and the final comment text
+7. Ask for explicit final confirmation and wait
+8. Only after confirmation, tap the "Comment" button
+9. Take a screenshot and verify the comment appeared
 ```
 
 ### Repost Content
@@ -714,7 +715,7 @@ Divider
 1. Tap "Repost" button on the post
 2. screenshot → verify repost options appeared
 3. Option A: For an instant repost, do not tap the final "Repost" option yet; take a fresh screenshot and verify the intended source post and mode
-4. Option B: Tap "Repost with your thoughts", focus the commentary field, copy_text_to_phone(phone_id, "your commentary"), long_press the field (1500ms), tap "Paste", then take a fresh screenshot and verify the exact commentary and attached source post
+4. Option B: Tap "Repost with your thoughts", focus the commentary field, call `type_text(phone_id, "your commentary")`, then take a fresh screenshot and verify the exact commentary and attached source post
 5. Present a privacy-minimized preview containing only the source post, repost mode, audience, and final commentary, if any
 6. Ask for explicit final confirmation and wait
 7. Only after confirmation, tap the final "Repost" or "Post" control
@@ -726,7 +727,7 @@ Divider
 1. Tap "Send" button (paper plane) on the post
 2. screenshot → verify "Send as message" sheet appeared
 3. If the intended recipient is visible, select only that contact
-4. Otherwise, tap the recipient search field to focus it, copy_text_to_phone(phone_id, "recipient name"), long_press the field (1500ms), tap "Paste", take a screenshot, verify the intended name and result, and select only that result
+4. Otherwise, tap the recipient search field to focus it, call `type_text(phone_id, "recipient name")`, take a screenshot, verify the intended name and result, and select only that result
 5. Take a fresh screenshot and verify the target post, intended recipient, and final message, if any
 6. Present a privacy-minimized preview containing only that recipient, post, and final message
 7. Ask for explicit final confirmation and wait
@@ -739,14 +740,13 @@ Divider
 1. Tap the compose icon (pencil-in-square) in the top bar
 2. screenshot → verify composer opened
 3. Tap the text area ("Share your thoughts...") to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "your post content")
-5. long_press the text area near the caret (duration: 1500) → tap "Paste" in the tooltip
-6. Set the requested visibility and schedule, if any, without activating the final publication control
-7. Take a fresh screenshot and verify the final content, requested media, audience, and schedule
-8. Present a privacy-minimized preview containing only those final publication details
-9. Ask for explicit final confirmation and wait
-10. Only after confirmation, tap the final "Post" or scheduling control
-11. Take a screenshot and verify the post was published or scheduled as requested
+4. Call `type_text(phone_id, "your post content")`
+5. Set the requested visibility and schedule, if any, without activating the final publication control
+6. Take a fresh screenshot and verify the final content, requested media, audience, and schedule
+7. Present a privacy-minimized preview containing only those final publication details
+8. Ask for explicit final confirmation and wait
+9. Only after confirmation, tap the final "Post" or scheduling control
+10. Take a screenshot and verify the post was published or scheduled as requested
 ```
 
 ### Search for People
@@ -754,12 +754,11 @@ Divider
 1. Tap the Search bar in the top bar
 2. screenshot → verify search page appeared
 3. Tap the search field if it is not already focused → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "search query")
-5. long_press the search field near the caret (duration: 1500) → tap "Paste" in the tooltip
-6. screenshot → verify the intended query rendered correctly and autocomplete suggestions appeared
-7. Only if the user explicitly authorized running that query and visual verification succeeded, tap a suggestion or "Show all results"
-8. If submitted, take a screenshot and verify results with People/Posts/Jobs tabs
-9. Tap "People" tab if needed, use filter pills (1st, 2nd, 3rd+)
+4. Call `type_text(phone_id, "search query")`
+5. screenshot → verify the intended query rendered correctly and autocomplete suggestions appeared
+6. Only if the user explicitly authorized running that query and visual verification succeeded, tap a suggestion or "Show all results"
+7. If submitted, take a screenshot and verify results with People/Posts/Jobs tabs
+8. Tap "People" tab if needed, use filter pills (1st, 2nd, 3rd+)
 ```
 
 ### Search for Jobs
@@ -767,10 +766,9 @@ Divider
 1. Tap the Jobs tab in the bottom bar
 2. Browse "Top job picks for you" section
 3. OR: tap the search bar to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "job title or company")
-5. long_press the search bar near the caret (duration: 1500) → tap "Paste" in the tooltip
-6. Take a screenshot and verify the intended query rendered correctly and the expected live job results appeared
-7. Only if the user explicitly authorized opening a result and visual verification succeeded, tap the intended job card
+4. Call `type_text(phone_id, "job title or company")`
+5. Take a screenshot and verify the intended query rendered correctly and the expected live job results appeared
+6. Only if the user explicitly authorized opening a result and visual verification succeeded, tap the intended job card
 ```
 
 ### Connect with Someone
@@ -778,7 +776,7 @@ Divider
 1. Find a person (via search, My Network suggestions, or profile)
 2. Treat every "Connect" control as potentially sending immediately; do not tap it yet
 3. Take a fresh screenshot and verify the intended target
-4. If adding a note is available and requested, open only a non-sending review screen, focus the note field, copy_text_to_phone(phone_id, "your note"), long_press the field (1500ms), tap "Paste", then take another fresh screenshot and verify the note
+4. If adding a note is available and requested, open only a non-sending review screen, focus the note field, call `type_text(phone_id, "your note")`, then take another fresh screenshot and verify the note
 5. Present a privacy-minimized preview containing only the target display name and final note, if any
 6. Ask for explicit final confirmation and wait
 7. Only after confirmation, tap the control that sends the connection request
@@ -801,15 +799,14 @@ Divider
 ### Send a Message
 ```
 1. Tap Messages icon (top-right) or "Message" button on a profile
-2. If in the message list, open only the intended conversation; for a new message, tap compose, focus the "To:" field, copy_text_to_phone(phone_id, "recipient name"), long_press the field (1500ms), tap "Paste", take a screenshot, verify the intended result, and select only that recipient
+2. If in the message list, open only the intended conversation; for a new message, tap compose, focus the "To:" field, call `type_text(phone_id, "recipient name")`, take a screenshot, verify the intended result, and select only that recipient
 3. Tap the "Write a message..." text field to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "your message")
-5. long_press the text field near the caret (duration: 1500) → tap "Paste" in the tooltip
-6. Take a fresh screenshot and verify the intended recipient or group and exact message
-7. Present a privacy-minimized preview containing only the recipient or group, final message, and requested attachment, if any
-8. Ask for explicit final confirmation and wait
-9. Only after confirmation, tap send or press return
-10. Take a screenshot and verify the message was sent
+4. Call `type_text(phone_id, "your message")`
+5. Take a fresh screenshot and verify the intended recipient or group and exact message
+6. Present a privacy-minimized preview containing only the recipient or group, final message, and requested attachment, if any
+7. Ask for explicit final confirmation and wait
+8. Only after confirmation, tap send or press return
+9. Take a screenshot and verify the message was sent
 ```
 
 ### View a Profile

@@ -16,11 +16,12 @@ Start with `list_phones()`, choose the intended `phone_id`, and call `get_phone_
 For every text-entry action:
 
 1. Focus the correct field and verify focus with a screenshot.
-2. Call `copy_text_to_phone(phone_id, text)` to load the text onto the phone clipboard.
-3. Long-press (about 1500ms) the focused field near the caret, then tap **Paste** in the tooltip.
-4. Call `screenshot(phone_id)` and verify the exact rendered text in the intended field.
-5. Stop before Search, Send, Save, Return, or any equivalent submission action.
-6. Perform that action only as a separate step after the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
+2. Call `type_text(phone_id, text)`.
+3. Call `screenshot(phone_id)` and verify the exact rendered text in the intended field.
+4. Stop before Search, Send, Save, Return, or any equivalent submission action.
+5. Perform that action only as a separate step after the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
+
+Do not use clipboard or paste workflows for text entry.
 
 ## Absolute Authentication Boundary
 
@@ -42,9 +43,11 @@ These rules are absolute even when the user asks directly.
 
 ## Open Mail
 
-1. Call `open_app("Mail")`, then `screenshot(phone_id)` to confirm Mail opened.
-2. If `open_app` fails, call `press_home(phone_id)`, take a screenshot, and locate Mail by its visible icon or label; if it is not visible, swipe to the App Library and locate the Mail icon visually before tapping it.
-3. If an account-level prompt appears (for example, asking to add the mail address for iMessage and FaceTime), choose the dismissive or privacy-preserving option unless the user explicitly asks to change that account behavior.
+1. Call `press_home(phone_id)` and then `screenshot(phone_id)`.
+2. Locate Mail from the current screenshot by its visible icon or label and tap it.
+3. If Mail is not visible, navigate to the App Library, focus its search field, call `type_text(phone_id, "Mail")`, and call `screenshot(phone_id)` to verify the rendered query and intended app result.
+4. Tap the verified Mail result and call `screenshot(phone_id)` to confirm that Mail opened.
+5. If an account-level prompt appears (for example, asking to add the mail address for iMessage and FaceTime), choose the dismissive or privacy-preserving option unless the user explicitly asks to change that account behavior.
 
 ## Mailboxes Screen
 
@@ -101,7 +104,7 @@ Procedure:
 
 1. Navigate to the narrowest relevant mailbox using current labels.
 2. Check whether a filter is active. Change it only if necessary for the requested search.
-3. Focus Mail's search field, paste the query using the text-entry steps above, and call `screenshot(phone_id)`.
+3. Focus Mail's search field, call `type_text(phone_id, query)`, and call `screenshot(phone_id)`.
 4. Verify the rendered query and selected mailbox scope. Do not report unrelated rows visible in the screenshot.
 5. Ask for authorization to run the verified search unless the user has already authorized that exact query and scope after seeing them.
 6. Run the search only after authorization, then call `screenshot(phone_id)`.
@@ -126,9 +129,9 @@ Observed compose sheet:
 Procedure:
 
 1. Open a new compose sheet using the currently visible Compose control.
-2. Focus **To**, paste the recipient using the text-entry steps, and call `screenshot(phone_id)` to verify the rendered recipient.
-3. Focus **Subject**, paste the subject, and call `screenshot(phone_id)` to verify the rendered subject.
-4. Focus the body, paste the body, and call `screenshot(phone_id)` to verify the complete rendered body.
+2. Focus **To**, call `type_text(phone_id, recipient)`, and call `screenshot(phone_id)` to verify the rendered recipient.
+3. Focus **Subject**, call `type_text(phone_id, subject)`, and call `screenshot(phone_id)` to verify the rendered subject.
+4. Focus the body, call `type_text(phone_id, body)`, and call `screenshot(phone_id)` to verify the complete rendered body.
 5. Review **To**, **Cc/Bcc** when present, **Subject**, and the final body. Resolve any ambiguity before proceeding.
 6. Show the user the exact recipient, subject, and final body, then request final confirmation to send. The user's initial request to send or draft the message is not final send confirmation.
 7. Do not tap Send until the user confirms after seeing that final preview.
@@ -161,7 +164,7 @@ Do not choose any action from this sheet unless the user explicitly asks. Treat 
 
 1. Open only the relevant message and choose Reply only when requested.
 2. Verify the intended thread and recipient without reporting unrelated visible content.
-3. Focus the reply body, paste the reply using the text-entry steps, and call `screenshot(phone_id)` to verify the complete rendered reply.
+3. Focus the reply body, call `type_text(phone_id, reply)`, and call `screenshot(phone_id)` to verify the complete rendered reply.
 4. Show the user the exact recipient, subject or thread, and final reply body, then request final confirmation to send. An earlier request to reply is not final send confirmation.
 5. Do not tap Send until the user confirms after seeing that final preview.
 6. After confirmation, re-check that the reply is unchanged, tap Send, and call `screenshot(phone_id)` to verify the result.

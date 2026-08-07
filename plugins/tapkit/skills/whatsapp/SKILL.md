@@ -13,7 +13,7 @@ Always use the TapKit loop: screenshot, identify the target, act, then screensho
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text-entry action, load the text with `copy_text_to_phone(phone_id, text)`, focus the correct field, paste via long-press and the **Paste** tooltip, then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds.
+For every text-entry action, focus the correct field, call `type_text(phone_id, text)`, then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds.
 
 ## Privacy And Permissions
 
@@ -58,14 +58,14 @@ Use this when the user wants to message someone without saving them as a contact
 1. Open WhatsApp.
 2. Go to Chats.
 3. Tap the green +.
-4. Call `copy_text_to_phone(phone_id, requested_full_number)` with the requested number, keeping the complete value on-device.
-5. Focus Search name or number, long-press near the caret, and tap Paste in the tooltip.
+4. Tap Search name or number to focus the field.
+5. Call `type_text(phone_id, requested_full_number)` with the requested number, keeping the complete value on-device.
 6. Call `screenshot(phone_id)` and verify the rendered number and matching formatted result under Not in your contacts.
 7. Confirm the intended recipient using a masked number only, and ask the user to review the full number on-device.
 8. Only if the user explicitly authorized starting a chat with the masked, verified recipient and verification succeeded, tap the green Chat action on the right.
 9. Call `screenshot(phone_id)` and verify the intended chat and recipient opened without transcribing the full unsaved number.
-10. Call `copy_text_to_phone(phone_id, "Your message")`.
-11. Tap the composer to focus it, long-press near the caret, and tap Paste.
+10. Tap the composer to focus it.
+11. Call `type_text(phone_id, "Your message")`.
 12. Call `screenshot(phone_id)` and verify the masked intended recipient and exact rendered message.
 13. Only if the user explicitly authorized sending this exact message and verification succeeded, tap the green send arrow.
 14. Call `screenshot(phone_id)` to verify the outgoing bubble.
@@ -81,21 +81,17 @@ New Chat has a New contact row, and number-search results also show New contact 
 
 Only use this when the user explicitly wants the number saved. Saving a contact mutates the iOS address book, so verify the name and full number on-device, use a masked number in model output, and request confirmation before saving. If a Contacts permission prompt appears, follow the permission gate above. For normal "message this number" requests, use the unsaved-number Chat result instead.
 
-## Pasting With TapKit
+## Text Entry With TapKit
 
-Use clipboard paste for text entry:
+Focus the destination field before typing text directly:
 
 ```
-copy_text_to_phone(phone_id, text)
-Tap the target field.
-Long-press near the caret.
-Tap Paste.
-Screenshot to verify the rendered text.
+tap(phone_id, x, y)
+type_text(phone_id, text)
+screenshot(phone_id)
 ```
 
-In New Chat, the paste menu was reliable after focusing the search field and long-pressing near the caret at the left side of the field. The Paste option appears in the iOS edit menu just below the search field.
-
-Do not tap individual keyboard keys. Paste only after the intended field is visibly focused.
+Do not tap individual keyboard keys. Use `type_text` only after the intended field is visibly focused.
 Do not tap a submission control automatically. Only submit after the user explicitly authorizes the exact action and the screenshot confirms the rendered text.
 
 ## Chat Screen
@@ -147,9 +143,9 @@ The Chats search field starts with media filters:
 To find an existing chat by number when the conversation cannot be opened directly:
 
 ```
-1. Call `copy_text_to_phone(phone_id, text)` with the narrowest useful number fragment supplied by the user.
-2. Tap Ask Meta AI or Search.
-3. Focus the search field, long-press near the caret, and tap Paste in the tooltip.
+1. Tap Ask Meta AI or Search.
+2. Tap the search field to focus it.
+3. Call `type_text(phone_id, text)` with the narrowest useful number fragment supplied by the user.
 4. Call `screenshot(phone_id)` and verify the rendered query and intended result under Chats without transcribing unrelated results.
 5. Confirm the intended result using a masked number only.
 6. If the user asked to resume the verified conversation, tap the matching result row.

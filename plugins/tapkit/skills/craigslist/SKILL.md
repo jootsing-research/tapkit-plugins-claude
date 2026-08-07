@@ -15,7 +15,7 @@ Craigslist commonly uses a dark theme, purple primary actions, and gray/black ba
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text entry: focus the intended field and verify focus with a screenshot, call `copy_text_to_phone(phone_id, text)`, long-press (about 1500ms) the field near the caret, and tap **Paste** in the tooltip. Then take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, Return, or an equivalent submission control unless the user explicitly authorized that separate action and visual verification succeeded. Never combine text entry and submission in one step. Publication has the stricter just-in-time confirmation gate below.
+For every text entry: focus the intended field and verify focus with a screenshot, call `type_text(phone_id, text)`, then take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, Return, or an equivalent submission control unless the user explicitly authorized that separate action and visual verification succeeded. Never combine text entry and submission in one step. Publication has the stricter just-in-time confirmation gate below.
 
 ## App Structure
 
@@ -549,24 +549,27 @@ Do not turn on notifications, search conversations, hide conversations, or send 
 ### Browse A Category
 
 ```
-1. open_app("Craigslist") -> screenshot -> verify Craigslist opened
-2. If open_app fails, press_home(phone_id) -> screenshot -> tap Craigslist if visible, or swipe left to the App Library and locate the Craigslist icon visually
-3. Tap Search if needed
-4. Tap categories
-5. Select a top-level group on the left
-6. Select a subcategory on the right
-7. screenshot -> verify result count and visible result cards
+1. `press_home(phone_id)` -> screenshot
+2. If **Craigslist** is visible, tap it; otherwise, swipe left to the App Library and tap its search field to focus it
+3. If using App Library search, call `type_text(phone_id, "Craigslist")`
+4. If using App Library search, take a screenshot and verify **Craigslist** rendered correctly and the intended app result is visible
+5. Tap the Craigslist icon or App Library result
+6. screenshot -> verify Craigslist opened
+7. Tap Search if needed
+8. Tap categories
+9. Select a top-level group on the left
+10. Select a subcategory on the right
+11. screenshot -> verify result count and visible result cards
 ```
 
 ### Search Listings
 
 ```
 1. Tap the search craigslist field to focus it -> screenshot to verify focus
-2. copy_text_to_phone(phone_id, "query")
-3. Long-press (about 1500ms) the search field near the caret -> tap Paste in the tooltip
-4. Take a screenshot and verify the intended query rendered correctly
-5. Only if the user explicitly authorized running that query and visual verification succeeded, choose a suggestion/category result or tap the keyboard search key
-6. screenshot -> verify result count, active category, location, and filter chips
+2. Call `type_text(phone_id, "query")`
+3. Take a screenshot and verify the intended query rendered correctly
+4. Only if the user explicitly authorized running that query and visual verification succeeded, choose a suggestion/category result or tap the keyboard search key
+5. screenshot -> verify result count, active category, location, and filter chips
 ```
 
 ### Filter Results
@@ -625,7 +628,7 @@ Do not turn on notifications, search conversations, hide conversations, or send 
 3. Choose images or skip images
 4. Choose location -> continue
 5. Choose type -> choose category
-6. Fill required posting details using user-provided information, pasting and screenshot-verifying each field
+6. Fill required posting details using user-provided information, entering each field with `type_text` and screenshot-verifying the rendered text
 7. Resolve validation messages
 8. Leave publish phone number and show address off unless the user reviews the exact on-device value and explicitly confirms that public disclosure
 9. Always stop at preview, present the final preview summary, and obtain fresh confirmation for that exact version before publish

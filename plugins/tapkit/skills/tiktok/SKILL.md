@@ -11,7 +11,7 @@ TikTok is a short-form video platform. Users browse an algorithmic "For You" fee
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text-entry action, focus the correct field and confirm focus with `screenshot(phone_id)`, then use the clipboard flow: `copy_text_to_phone(phone_id, text)` → `long_press` on the focused field (duration: 1500) → tap **"Paste"** in the tooltip that appears. Then call `screenshot(phone_id)` and visually verify the complete rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
+For every text-entry action, focus the correct field and confirm focus with `screenshot(phone_id)`, then call `type_text(phone_id, text)`. Then call `screenshot(phone_id)` and visually verify the complete rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
 
 ## Permission and Navigation Guardrails
 
@@ -112,7 +112,7 @@ Opened by tapping the comment bubble icon. Appears as a bottom half-sheet.
 - **Below text field**: emoji icon, @ mention button, send button (pink/red arrow)
 - Keyboard appears when text field is tapped
 
-To draft a comment: tap the "Add comment..." field to focus it → `copy_text_to_phone(phone_id, "your comment")` → `long_press` on the field (duration: 1500) → tap **"Paste"** in the tooltip → `screenshot(phone_id)` → visually verify the rendered comment. Do not tap Send automatically. Only if the user explicitly authorized posting this exact comment and verification succeeded, tap Send and take another screenshot to verify it posted.
+To draft a comment: tap the "Add comment..." field to focus it → `type_text(phone_id, "your comment")` → `screenshot(phone_id)` → visually verify the rendered comment. Do not tap Send automatically. Only if the user explicitly authorized posting this exact comment and verification succeeded, tap Send and take another screenshot to verify it posted.
 
 To close: tap the **X** in the header, or swipe down on the sheet.
 
@@ -320,17 +320,17 @@ The discovery page appears when you first enter search, before typing a query.
 
 ### Typing a Search Query (Autocomplete)
 
-Once text is entered, the page switches to autocomplete suggestions:
+As you type, the page switches to autocomplete suggestions:
 
-- **Search bar** shows entered text with cursor, **X clear button** appears to clear text
+- **Search bar** shows typed text with cursor, **X clear button** appears to clear text
 - **Suggestion list**: Each row has:
   - Magnifying glass icon (left)
-  - Query text — entered portion in **pink/red**, completion text in **black**
+  - Query text — typed portion in **pink/red**, completion text in **black**
   - **Fill arrow** (right side) — tapping this fills the suggestion into the search bar WITHOUT executing the search, allowing further refinement
   - Some suggestions show a **thumbnail image** (for creator accounts)
 - **"Press and hold on a suggestion to report it"** hint at bottom
 - Tapping a suggestion directly executes that search. Do so only after `screenshot(phone_id)` verifies the rendered query and matching suggestion and the user explicitly authorizes the search.
-- The blue **"search"** keyboard button and red **"Search"** button submit exactly what is in the field. Never tap either automatically; only tap one after explicit user authorization and successful visual verification.
+- The blue **"search"** keyboard button and red **"Search"** button submit exactly what is typed. Never tap either automatically; only tap one after explicit user authorization and successful visual verification.
 
 ### Search Results Page
 
@@ -432,7 +432,7 @@ Accessed via three-dot menu > Filters on the search results page. Opens as a bot
 
 ### Search Tips and Gotchas
 
-- **Placeholder text is not real text**: The search bar shows gray placeholder/suggestion text (e.g., a trending topic). Tapping the bar and entering text replaces it — no need to clear it first.
+- **Placeholder text is not real text**: The search bar shows gray placeholder/suggestion text (e.g., a trending topic). Tapping the bar and typing replaces it — no need to clear it first.
 - **Camera icon** on the search discovery page opens visual/image search. Only visible before executing a search — replaced by X clear button on results page.
 - **Voice search**: Tap the floating microphone icon on the discovery page, or the mic on the keyboard.
 - **9 result tabs**: Tab bar scrolls horizontally. Full list: Top, Shop, Users, Videos, Sounds, LIVE, Places, Photos, Hashtags. Swipe left on tabs to reveal hidden ones.
@@ -570,7 +570,7 @@ The final step before posting. Reached by tapping "Next" on the editing screen.
 **Additional details:**
 - **Character counter**: Shows at bottom-left (e.g., "144/4000") — max 4000 characters for description
 - **Post button in expanded editor**: In the expanded text editor view, the "Post" button moves to the **top-right** corner (red pill button)
-- **Keyboard dismiss**: `escape` may not dismiss the keyboard on the publishing page. Tapping outside the text field or using the expand/collapse icon works better.
+- **Keyboard dismiss**: Tap outside the text field or use the visible expand/collapse icon on the publishing page.
 
 **Bottom buttons:**
 - **"Drafts"** (outlined, left) — save as draft for later
@@ -612,7 +612,7 @@ When backing out of the editing screen with unsaved content, a menu appears:
 - **AI rewrite**: The publishing page has an "AI rewrite" tool that can rewrite your caption using AI — useful for improving engagement.
 - **Drafts are local**: Saved drafts appear on your Profile tab in a private Drafts section. They are not published until you manually post them.
 - **Don't accidentally post**: The red "Post" button publishes immediately with no confirmation dialog. Double-check all details before tapping it.
-- **Publishing page text entry**: Tap the title or description field to focus it, then use the clipboard flow: `copy_text_to_phone(phone_id, "...")` → `long_press` on the field (duration: 1500) → tap **"Paste"** in the tooltip. Then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Drafts, Post, or another save/publish control automatically; do so only with explicit user authorization after successful verification.
+- **Publishing page text entry**: Tap the title or description field to focus it, call `type_text(phone_id, "...")`, then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Drafts, Post, or another save/publish control automatically; do so only with explicit user authorization after successful verification.
 - **Maximum 5 hashtags per post**: TikTok enforces a limit of 5 hashtags. If you include more, extras are auto-removed with a toast message "Maximum 5 hashtags. 2 removed." Plan your hashtags accordingly.
 - **Multi-select: tap selector circles, NOT image centers**: In multi-select mode, tapping the center of a photo opens a single-image preview instead of selecting it. You must tap the **circle selector** in the upper-right corner of the thumbnail.
 - **Sound picker "For You" tab is contextual**: The For You tab in the sound picker shows personalized/contextual suggestions. The algorithm matches sounds to your content (e.g., bird photos surface "Three Little Birds").
@@ -621,10 +621,11 @@ When backing out of the editing screen with unsaved content, a menu appears:
 
 ### Browse the For You Feed
 ```
-1. open_app("TikTok") → screenshot(phone_id) to verify. If open_app fails, press_home(phone_id) → screenshot → visually locate and tap the TikTok icon; use App Library if it is not visible
-2. Tap "For You" tab if not already selected (top bar)
-3. Watch current video, swipe up from center-left to advance to next video
-4. screenshot → verify new video loaded
+1. press_home(phone_id) → screenshot(phone_id) → visually locate and tap the TikTok icon; if it is not visible, open the App Library (swipe left past the last home page) and find it there
+2. screenshot(phone_id) to verify
+3. Tap "For You" tab if not already selected (top bar)
+4. Watch current video, swipe up from center-left to advance to next video
+5. screenshot → verify new video loaded
 ```
 
 ### Like a Video
@@ -640,11 +641,10 @@ When backing out of the editing screen with unsaved content, a menu appears:
 1. Tap the comment bubble icon on the right side
 2. screenshot → verify comment section opened
 3. Tap the "Add comment..." text field to focus it
-4. copy_text_to_phone(phone_id, "your comment")
-5. long_press on the field (duration: 1500) → tap "Paste" in the tooltip
-6. screenshot(phone_id) → verify the rendered comment and target video
-7. Only if the user explicitly authorized posting this exact comment and verification succeeded, tap the send button (pink arrow, bottom-right)
-8. screenshot(phone_id) → verify the comment posted
+4. type_text(phone_id, "your comment")
+5. screenshot(phone_id) → verify the rendered comment and target video
+6. Only if the user explicitly authorized posting this exact comment and verification succeeded, tap the send button (pink arrow, bottom-right)
+7. screenshot(phone_id) → verify the comment posted
 ```
 
 ### Follow a Creator
@@ -667,11 +667,10 @@ When backing out of the editing screen with unsaved content, a menu appears:
 1. Tap the search icon (magnifying glass) in the top bar (far right)
 2. screenshot → search page appears
 3. Tap the search field to focus it
-4. copy_text_to_phone(phone_id, "search query")
-5. long_press on the search field (duration: 1500) → tap "Paste" in the tooltip
-6. screenshot(phone_id) → verify the rendered query and expected autocomplete suggestions
-7. Do not submit automatically. Only if the user explicitly authorized running the search and verification succeeded, tap the blue "search" button on the keyboard or a matching suggestion
-8. screenshot(phone_id) → verify the results page with tabs
+4. type_text(phone_id, "search query")
+5. screenshot(phone_id) → verify the rendered query and expected autocomplete suggestions
+6. Do not submit automatically. Only if the user explicitly authorized running the search and verification succeeded, tap the blue "search" button on the keyboard or a matching suggestion
+7. screenshot(phone_id) → verify the results page with tabs
 ```
 
 ### Filter Search Results
@@ -698,8 +697,8 @@ When backing out of the editing screen with unsaved content, a menu appears:
 4. Tap the capture button (center)
 5. Edit: add text (Aa), stickers, effects as needed
 6. Tap "Next" (bottom-right)
-7. Tap the title field to focus it, then copy_text_to_phone(phone_id, "title") → long_press the field (duration: 1500) → tap "Paste" → screenshot(phone_id) and verify the rendered title
-8. If adding a description, focus that field, then copy_text_to_phone(phone_id, "description") → long_press → tap "Paste" → screenshot(phone_id) and verify the rendered description, hashtags, and mentions
+7. Tap the title field to focus it, call `type_text(phone_id, "title")`, then call `screenshot(phone_id)` and verify the rendered title
+8. If adding a description, focus that field, call `type_text(phone_id, "description")`, then call `screenshot(phone_id)` and verify the rendered description, hashtags, and mentions
 9. Set only the location, visibility, and other options the user requested; obtain explicit approval before granting location permission
 10. Only if the user explicitly authorized publishing or saving this exact draft and all visual verification succeeded, tap the corresponding "Post" or "Drafts" control
 11. screenshot(phone_id) → verify the authorized action completed
@@ -714,7 +713,7 @@ When backing out of the editing screen with unsaved content, a menu appears:
    OR hold to record, release to stop
 5. Edit: add sound, text, effects, stickers
 6. Tap "Next"
-7. Focus each requested text field, use the clipboard paste flow (copy_text_to_phone → long_press → "Paste"), then screenshot(phone_id) and visually verify its rendered contents before moving on
+7. Focus each requested text field, call `type_text(phone_id, text)`, then call `screenshot(phone_id)` and visually verify its rendered contents before moving on
 8. Only if the user explicitly authorized publishing this exact video and all visual verification succeeded, tap "Post"
 9. screenshot(phone_id) → verify the video published
 ```
@@ -733,7 +732,7 @@ When backing out of the editing screen with unsaved content, a menu appears:
 1. Tap the + button (center of bottom tab bar)
 2. Swipe left on mode bar past PHOTO to TEXT
 3. Tap the text input area to focus it
-4. copy_text_to_phone(phone_id, "your text") → long_press the input area (duration: 1500) → tap "Paste" in the tooltip
+4. type_text(phone_id, "your text")
 5. screenshot(phone_id) → verify the rendered text
 6. Only if the user explicitly authorized proceeding with this exact text and verification succeeded, tap "Next" and choose a template style
 7. Proceed to the publishing page; do not tap Post without separate explicit authorization after verifying the final post

@@ -82,17 +82,16 @@ For an existing alarm, changing any selected day requires the confirmation gate.
 
 The default **Alarm** value is editable text, not a placeholder. To replace it:
 
-1. Call `copy_text_to_phone(phone_id, "requested label")` to load the new label onto the clipboard.
-2. Tap the visible label value and screenshot to verify the field is focused.
-3. Select the full existing value using the visible iOS selection menu: double-tap the existing word to select it, tap an unhighlighted part of the field to reveal **Select All**, then tap **Select All**.
-4. Tap **Paste** to replace the selected text with the clipboard contents.
-5. Screenshot and verify the complete rendered label in the correct field.
-6. Stop before the keyboard checkmark, **Done**, **Save**, or any equivalent confirmation.
-7. Confirm or save only as a separate, explicitly authorized action.
+1. Tap the visible label value and screenshot to verify the field is focused.
+2. Select the full existing value using the visible iOS selection menu.
+3. Call `type_text(phone_id, "requested label")`.
+4. Screenshot and verify the complete rendered label in the correct field.
+5. Stop before the keyboard checkmark, **Done**, **Save**, or any equivalent confirmation.
+6. Confirm or save only as a separate, explicitly authorized action.
 
 To clear a label, select all and use the visible **Cut** action, then screenshot and verify that the field is empty. An empty value may return to the default **Alarm** label after saving.
 
-Avoid long-pressing adjacent settings rows or repeatedly tapping small clear controls when the target is uncertain. In the Label row, prefer the double-tap + Select All + Paste flow over a long-press, which can activate adjacent rows such as **Repeat**.
+Avoid long-pressing adjacent settings rows or repeatedly tapping small clear controls when the target is uncertain.
 
 ### Sound and haptics
 

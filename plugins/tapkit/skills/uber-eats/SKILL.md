@@ -11,7 +11,7 @@ Uber Eats is a food delivery app for ordering from restaurants, grocery stores, 
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text-entry action, focus the correct field and confirm focus with `screenshot(phone_id)`, then use the clipboard flow: `copy_text_to_phone(phone_id, text)` → `long_press` on the focused field (duration: 1500) → tap **"Paste"** in the tooltip that appears. Then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
+For every text-entry action, focus the correct field and confirm focus with `screenshot(phone_id)`, then call `type_text(phone_id, text)`. Then call `screenshot(phone_id)` and visually verify the rendered text. Do not tap Send, Post, Search, Save, Confirm, or an equivalent submission control automatically. Submit only when the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
 
 ## Privacy And Checkout Decisions
 
@@ -66,7 +66,7 @@ Tap the Search tab (3rd icon) to open search.
 
 ### Search Flow
 1. Tap the search bar to focus it
-2. `copy_text_to_phone(phone_id, "query")` → `long_press` the search bar (duration: 1500) → tap **"Paste"** in the tooltip
+2. `type_text(phone_id, "query")`
 3. `screenshot(phone_id)` → verify the rendered query and expected autocomplete results
 4. Do not submit automatically. Only if the user explicitly authorized opening a result and verification succeeded, tap a matching restaurant or suggestion
 5. `screenshot(phone_id)` → verify the intended result page opened

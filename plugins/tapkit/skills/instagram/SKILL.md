@@ -13,7 +13,7 @@ Instagram is a photo/video sharing social media app. Users browse feeds, post ph
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text entry, focus the intended field and verify focus with a screenshot, then call `copy_text_to_phone(phone_id, text)`, long-press (~1500ms) the target field near the caret, and tap **Paste** in the tooltip. Take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, **Share**, Return, or an equivalent submission control unless the user explicitly authorized that submission and visual verification succeeded. Never combine text entry with submission in one step.
+For every text entry, focus the intended field and verify focus with a screenshot, then call `type_text(phone_id, text)`. Take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, **Share**, Return, or an equivalent submission control unless the user explicitly authorized that submission and visual verification succeeded. Never combine text entry with submission in one step.
 
 Treat the photo library as user-controlled private data. Never open, scroll, search, or inspect the library beyond the exact asset the user selected. If an asset has not already been selected, hand control to the user to choose it; resume only after Instagram returns to the selected asset's preview. Inspect only that preview, not adjacent thumbnails, other assets, filenames, dates, locations, or metadata.
 
@@ -156,18 +156,18 @@ Opens a bottom sheet with:
 1. Tap username/profile pic on a post to visit their profile
 2. Tap the **"Message"** button
 3. Tap the message field to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "your message") → long_press the message field near the caret (duration: 1500) → tap "Paste" in the tooltip
+4. Call `type_text(phone_id, "your message")`
 5. Take a screenshot and verify the exact message rendered correctly
 6. Only if the user explicitly authorized sending that message and visual verification succeeded, tap Return
 
 **From the DM Inbox:**
 1. Tap compose icon (pencil, top-right)
 2. Tap the "To: Search" field to focus it → screenshot to verify focus
-3. copy_text_to_phone(phone_id, "recipient name") → long_press the search field near the caret (duration: 1500) → tap "Paste" in the tooltip
+3. Call `type_text(phone_id, "recipient name")`
 4. Take a screenshot and verify the intended recipient name rendered correctly and the correct result is visible
 5. Only if the user explicitly authorized selecting that recipient and visual verification succeeded, tap the result
 6. Tap the message field to focus it → screenshot to verify focus
-7. copy_text_to_phone(phone_id, "your message") → long_press the message field near the caret (duration: 1500) → tap "Paste" in the tooltip
+7. Call `type_text(phone_id, "your message")`
 8. Take a screenshot and verify the exact message rendered correctly
 9. Only if the user explicitly authorized sending that message and visual verification succeeded, tap Return
 
@@ -235,7 +235,7 @@ Tapping the comment bubble opens a bottom sheet:
 
 ### Writing a Comment
 1. Tap the comment input bar to focus it → screenshot to verify focus
-2. copy_text_to_phone(phone_id, "your comment") → long_press the input bar near the caret (duration: 1500) → tap "Paste" in the tooltip
+2. Call `type_text(phone_id, "your comment")`
 3. Take a screenshot and verify the exact comment rendered correctly
 4. Only if the user explicitly authorized posting that comment and visual verification succeeded, tap the **blue send arrow**
 
@@ -243,7 +243,7 @@ Tapping the comment bubble opens a bottom sheet:
 1. Tap "Reply" on the comment
 2. Input changes to "Replying to [username]" with pre-filled @mention
 3. Tap the reply input to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "your reply") → long_press the input near the caret (duration: 1500) → tap "Paste" in the tooltip
+4. Call `type_text(phone_id, "your reply")`
 5. Take a screenshot and verify the @mention and exact reply rendered correctly
 6. Only if the user explicitly authorized posting that reply and visual verification succeeded, tap the blue send arrow
 7. Tap "X" to cancel reply mode when not submitting
@@ -279,13 +279,15 @@ Accessed via hamburger menu (≡) on Profile.
 
 ### Browse the Feed
 ```
-1. open_app("Instagram") → screenshot to verify Instagram opened
-2. Fallback if open_app fails: `press_home(phone_id)` → screenshot; if the
-   **Instagram** icon is visible, tap it; otherwise swipe left to the App Library
-   and visually locate Instagram by its icon, then tap it
-3. Home tab should be selected by default
-4. Swipe up from center to scroll down
-5. screenshot → verify new posts loaded
+1. `press_home(phone_id)` → screenshot
+2. If **Instagram** is visible, tap it; otherwise, swipe left to the App Library and tap its search field to focus it
+3. If using App Library search, call `type_text(phone_id, "Instagram")`
+4. If using App Library search, take a screenshot and verify **Instagram** rendered correctly and the intended app result is visible
+5. Only if the user explicitly authorized opening Instagram and visual verification succeeded, tap that App Library result
+6. screenshot → verify Instagram opened
+7. Home tab should be selected by default
+8. Swipe up from center to scroll down
+9. screenshot → verify new posts loaded
 ```
 
 ### Like a Post
@@ -300,11 +302,10 @@ Accessed via hamburger menu (≡) on Profile.
 1. Tap the comment bubble icon on a post
 2. screenshot → verify comments sheet opened
 3. Tap the "Join the conversation..." input bar to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "your comment")
-5. long_press the input bar near the caret (duration: 1500) → tap "Paste" in the tooltip
-6. Take a screenshot and verify the exact comment rendered correctly
-7. Only if the user explicitly authorized posting that comment and visual verification succeeded, tap the blue send arrow
-8. If sent, take a screenshot and verify the comment posted
+4. Call `type_text(phone_id, "your comment")`
+5. Take a screenshot and verify the exact comment rendered correctly
+6. Only if the user explicitly authorized posting that comment and visual verification succeeded, tap the blue send arrow
+7. If sent, take a screenshot and verify the comment posted
 ```
 
 ### Watch Reels
@@ -320,11 +321,11 @@ Accessed via hamburger menu (≡) on Profile.
 1. From the current screenshot, locate the Direct Messages tab by its flag/pennant icon in the bottom navigation and tap it
 2. Tap compose icon (pencil, top-right)
 3. Tap the recipient search field to focus it → screenshot to verify focus
-4. copy_text_to_phone(phone_id, "recipient name") → long_press the search field near the caret (duration: 1500) → tap "Paste" in the tooltip
+4. Call `type_text(phone_id, "recipient name")`
 5. Take a screenshot and verify the intended name rendered correctly and the correct result is visible
 6. Only if the user explicitly authorized selecting that recipient and visual verification succeeded, tap the correct result
 7. Tap the "Message..." input field to focus it → screenshot to verify focus
-8. copy_text_to_phone(phone_id, "your message") → long_press the input field near the caret (duration: 1500) → tap "Paste" in the tooltip
+8. Call `type_text(phone_id, "your message")`
 9. Take a screenshot and verify the exact message rendered correctly
 10. Only if the user explicitly authorized sending that message and visual verification succeeded, tap the return key
 11. If sent, take a screenshot and verify the message was sent
@@ -334,10 +335,9 @@ Accessed via hamburger menu (≡) on Profile.
 ```
 1. From the current screenshot, locate the Search/Explore tab by its magnifying-glass icon in the bottom navigation and tap it
 2. Tap the search bar at the top to focus it → screenshot to verify focus
-3. copy_text_to_phone(phone_id, "search query")
-4. long_press the search bar near the caret (duration: 1500) → tap "Paste" in the tooltip
-5. Take a screenshot and verify the intended query rendered correctly and the expected live results appeared
-6. Only if the user explicitly authorized opening a result and visual verification succeeded, tap the intended result
+3. Call `type_text(phone_id, "search query")`
+4. Take a screenshot and verify the intended query rendered correctly and the expected live results appeared
+5. Only if the user explicitly authorized opening a result and visual verification succeeded, tap the intended result
 ```
 
 ### View Your Profile

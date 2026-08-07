@@ -18,13 +18,12 @@ Adjust one visible picker wheel at a time with a vertical drag. Screenshot and v
 
 ### Set a label
 
-1. Call `copy_text_to_phone(phone_id, "requested label")` to load the label onto the clipboard.
-2. Focus the visible label field and screenshot to verify focus.
-3. Select the full existing value when replacing it: double-tap the existing word, tap an unhighlighted part of the field to reveal **Select All**, then tap **Select All**.
-4. Tap **Paste** to replace the selection with the clipboard contents.
-5. Screenshot and verify the complete rendered label in the correct field.
-6. Stop before **Done**, Return, **Start**, or any equivalent submission.
-7. Confirm the label or start the timer only as a separate, explicitly authorized action.
+1. Focus the visible label field and screenshot to verify focus.
+2. Select the full existing value when replacing it.
+3. Call `type_text(phone_id, "requested label")`.
+4. Screenshot and verify the complete rendered label in the correct field.
+5. Stop before **Done**, Return, **Start**, or any equivalent submission.
+6. Confirm the label or start the timer only as a separate, explicitly authorized action.
 
 ### Choose an end sound
 

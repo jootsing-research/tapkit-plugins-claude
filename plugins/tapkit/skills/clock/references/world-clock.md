@@ -16,13 +16,12 @@ Do not infer a city from a partially visible row. Do not report unrelated saved 
 ## Add a city
 
 1. Tap the visible add control and verify the search screen.
-2. Call `copy_text_to_phone(phone_id, "requested city")` to load the city name onto the clipboard.
-3. Focus the search field and screenshot to verify focus.
-4. Long-press (~1500ms) the search field near the caret and tap **Paste** in the tooltip.
-5. Screenshot and verify the complete rendered query and intended city result.
-6. Stop before selection.
-7. Add the matching city only as a separate, explicitly authorized action.
-8. Verify that the intended city appears in the list.
+2. Focus the search field and screenshot to verify focus.
+3. Call `type_text(phone_id, "requested city")`.
+4. Screenshot and verify the complete rendered query and intended city result.
+5. Stop before selection.
+6. Add the matching city only as a separate, explicitly authorized action.
+7. Verify that the intended city appears in the list.
 
 If several places share a name, ask the user to disambiguate before selecting.
 

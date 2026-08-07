@@ -13,7 +13,7 @@ Facebook is a social networking app for sharing posts, photos, and videos, joini
 
 Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
 
-For every text entry, focus the intended field and verify focus with a screenshot, then call `copy_text_to_phone(phone_id, text)`, long-press (~1500ms) the target field near the caret, and tap **Paste** in the tooltip. Take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, **Share**, Return, or an equivalent submission control unless the user explicitly authorized that submission and visual verification succeeded. Never combine text entry with submission in one step.
+For every text entry, focus the intended field and verify focus with a screenshot, then call `type_text(phone_id, text)`. Take a screenshot and verify the complete rendered text. Do not tap **Send**, **Post**, **Search**, **Save**, **Confirm**, **Share**, Return, or an equivalent submission control unless the user explicitly authorized that submission and visual verification succeeded. Never combine text entry with submission in one step.
 
 ## Privacy and Data Minimization
 
@@ -219,15 +219,17 @@ Tapping **+** on the Home screen opens:
 
 ### Browse the Feed
 ```
-1. open_app("Facebook") → screenshot to verify Facebook opened
-2. Fallback if open_app fails: `press_home(phone_id)` → screenshot; if the
-   **Facebook** icon is visible, tap it; otherwise swipe left to the App Library
-   and visually locate Facebook by its icon, then tap it
-3. Home tab should be selected by default
-4. Swipe up from center of screen to scroll down
-5. screenshot → verify new posts loaded
-6. Use visible posts only to locate content within the user's requested scope; do not report unrelated posts, people, stories, or recommendations
-7. If the target is ambiguous, ask the user to clarify without enumerating the visible alternatives
+1. `press_home(phone_id)` → screenshot
+2. If **Facebook** is visible, tap it; otherwise, swipe left to the App Library and tap its search field to focus it
+3. If using App Library search, call `type_text(phone_id, "Facebook")`
+4. If using App Library search, take a screenshot and verify **Facebook** rendered correctly and the intended app result is visible
+5. Only if the user explicitly authorized opening Facebook and visual verification succeeded, tap that App Library result
+6. screenshot → verify Facebook opened
+7. Home tab should be selected by default
+8. Swipe up from center of screen to scroll down
+9. screenshot → verify new posts loaded
+10. Use visible posts only to locate content within the user's requested scope; do not report unrelated posts, people, stories, or recommendations
+11. If the target is ambiguous, ask the user to clarify without enumerating the visible alternatives
 ```
 
 ### Like a Post
@@ -244,11 +246,10 @@ Tapping **+** on the Home screen opens:
 2. Tap the Comment button on that post
 3. screenshot → verify comment input appeared without describing surrounding comments or profiles
 4. Tap the comment field to focus it → screenshot to verify focus
-5. copy_text_to_phone(phone_id, "your comment")
-6. long_press the comment field near the caret (duration: 1500) → tap "Paste" in the tooltip
-7. Take a screenshot and verify the exact comment rendered completely and correctly
-8. Only if the user explicitly authorized posting that comment and visual verification succeeded, tap the send button
-9. If sent, take a screenshot and verify the comment posted
+5. Call `type_text(phone_id, "your comment")`
+6. Take a screenshot and verify the exact comment rendered completely and correctly
+7. Only if the user explicitly authorized posting that comment and visual verification succeeded, tap the send button
+8. If sent, take a screenshot and verify the comment posted
 ```
 
 ### Share a Story
@@ -264,13 +265,12 @@ Tapping **+** on the Home screen opens:
 ```
 1. Tap the magnifying glass icon in the top bar
 2. Tap the search bar if it is not already focused → screenshot to verify focus
-3. copy_text_to_phone(phone_id, "search query")
-4. long_press the search bar near the caret (duration: 1500) → tap "Paste" in the tooltip
-5. Take a screenshot and verify the intended query rendered correctly
-6. Only if the user explicitly authorized running that query and visual verification succeeded, tap "search" on the keyboard
-7. If submitted, take a screenshot and verify the results
-8. Report only results relevant to the exact query; do not mention unrelated people, profiles, posts, locations, or suggestions
-9. If multiple results could be the requested target, ask for clarification without enumerating unrelated results
+3. Call `type_text(phone_id, "search query")`
+4. Take a screenshot and verify the intended query rendered correctly
+5. Only if the user explicitly authorized running that query and visual verification succeeded, tap "search" on the keyboard
+6. If submitted, take a screenshot and verify the results
+7. Report only results relevant to the exact query; do not mention unrelated people, profiles, posts, locations, or suggestions
+8. If multiple results could be the requested target, ask for clarification without enumerating unrelated results
 ```
 
 ### Inspect a Profile
@@ -298,11 +298,10 @@ Tapping **+** on the Home screen opens:
 3. Do not read or report other conversation names, active contacts, message previews, timestamps, or unread state
 4. If multiple recipients or conversations could match, stop and ask for clarification without listing the alternatives
 5. Tap the message field to focus it → screenshot to verify focus
-6. copy_text_to_phone(phone_id, "your message")
-7. long_press the message field near the caret (duration: 1500) → tap "Paste" in the tooltip
-8. Take a screenshot and verify the exact recipient and rendered message without reporting unrelated chat content
-9. Only if the user explicitly authorized sending that message and visual verification succeeded, tap send
-10. If sent, take a screenshot and verify the message was sent without describing other conversations
+6. Call `type_text(phone_id, "your message")`
+7. Take a screenshot and verify the exact recipient and rendered message without reporting unrelated chat content
+8. Only if the user explicitly authorized sending that message and visual verification succeeded, tap send
+9. If sent, take a screenshot and verify the message was sent without describing other conversations
 ```
 
 ## Tips and Gotchas
