@@ -5,33 +5,49 @@ description: This skill should be used when the user wants to use Apple Mail on 
 
 # Apple Mail — iOS Email App
 
-Apple Mail is the default iOS email client. On TJ's iPhone it is configured with an iCloud mailbox and uses the system dark appearance. This skill focuses on workflows needed for Craigslist account/posting verification, receiving mail, finding messages, composing, and avoiding accidental account or send actions.
+Apple Mail is the default iOS email client. Use current screenshots and visible labels to navigate. Do not rely on saved coordinates, a particular device, account, mailbox configuration, theme, or previously observed screen state.
 
 **Always take a screenshot after each action to verify what's on screen.** Use visible labels, icons, and spatial relationships rather than memorized tap positions.
 
-Do not record or repeat the user's full email address in manuals, logs, or summaries unless the user explicitly asks.
+## Setup And Text Entry
 
-## TapKit Setup Reminder
+Start with `list_phones()`, choose the intended `phone_id`, and call `get_phone_status(phone_id)`. Include that `phone_id` in every phone-targeting tool call.
 
-Before acting in this app, follow the core TapKit setup: `list_phones()` -> choose `phone_id` -> `get_phone_status(phone_id)`. All TapKit examples in this skill assume every MCP tool call includes that `phone_id`.
+For every text-entry action:
 
-## Current State
+1. Focus the correct field and verify focus with a screenshot.
+2. Call `type_text(phone_id, text)`.
+3. Call `screenshot(phone_id)` and verify the exact rendered text in the intended field.
+4. Stop before Search, Send, Save, Return, or any equivalent submission action.
+5. Perform that action only as a separate step after the user explicitly authorizes the exact action and visual verification succeeds. Never combine text entry and submission in one step.
 
-Observed configured state:
+Do not use clipboard or paste workflows for text entry.
 
-- Mail opens to an iCloud **Inbox**.
-- The inbox initially contained a system-generated iCloud welcome email.
-- A one-time prompt appeared asking whether to add the mail address for iMessage and FaceTime. Choose **No** unless the user explicitly asks to change that Apple account behavior.
-- Gmail was not installed; Spotlight showed Gmail only as an App Store result.
+## Absolute Authentication Boundary
 
-## Global Safety Rules
+- Never open, tap, or follow authentication, login, sign-in, password-reset, magic-link, confirmation, or verification links.
+- Never read, copy, transcribe, summarize, reveal, enter, or submit verification codes, one-time passwords, recovery codes, or equivalent authentication secrets.
+- Never help complete an authentication or account-verification flow through Mail. If a request reaches this boundary, explain that the action cannot be performed and stop without exposing the sensitive content. Hand the device to the user for that step and resume only after they confirm it is complete and a non-sensitive screen is visible.
 
-- Do not tap the send arrow unless the user explicitly asks to send and the recipient, subject, and body have been verified.
-- Do not tap confirmation links, copy verification codes, reveal codes, or open posting-management links unless the user explicitly asks.
-- Do not trash, move, flag, mark, reply, reply all, forward, or archive messages unless the user explicitly asks.
-- Avoid opening unrelated personal messages. Use sender and subject snippets to identify only the relevant message.
-- If a non-empty draft was opened only for inspection, close it and choose **Delete Draft** unless the user asks to keep it.
-- If an account-level prompt appears, choose the privacy-preserving or dismissive option unless the user asks to change account behavior.
+These rules are absolute even when the user asks directly.
+
+## Privacy And Scope
+
+- Search only the narrowest mailbox scope necessary for the request. Begin in the current mailbox when appropriate; widen to another named mailbox or all mailboxes only when required by the user's request.
+- Use the minimum sender, subject, date, or keyword criteria needed to identify the target message.
+- Open only a message that is relevant to the request. If relevance is uncertain, ask the user before opening it.
+- Never summarize, transcribe, or mention unrelated senders, subjects, notifications, message previews, search results, or message contents visible on screen.
+- Mask email addresses in summaries unless the user specifically needs the full address. For example, render `person@example.com` as `p***@example.com`.
+- Do not move, archive, flag, mark, forward, reply to, or otherwise modify a message unless the user explicitly requests that action.
+- Do not record or repeat the user's own full email address in logs or summaries unless the user explicitly asks.
+
+## Open Mail
+
+1. Call `press_home(phone_id)` and then `screenshot(phone_id)`.
+2. Locate Mail from the current screenshot by its visible icon or label and tap it.
+3. If Mail is not visible, navigate to the App Library, focus its search field, call `type_text(phone_id, "Mail")`, and call `screenshot(phone_id)` to verify the rendered query and intended app result.
+4. Tap the verified Mail result and call `screenshot(phone_id)` to confirm that Mail opened.
+5. If an account-level prompt appears (for example, asking to add the mail address for iMessage and FaceTime), choose the dismissive or privacy-preserving option unless the user explicitly asks to change that account behavior.
 
 ## Mailboxes Screen
 
@@ -46,10 +62,8 @@ Observed layout:
 | **Edit** | Customize mailbox list |
 | **Inbox** | All inbox mail; badge count shows unread messages |
 | **VIP** | Messages from VIP contacts |
-| **iCloud** section | Account-specific mailboxes |
+| Account section (e.g. **iCloud**) | Account-specific mailboxes |
 | Compose icon | New message |
-
-Only the basic iCloud mailbox structure was visible during this pass.
 
 ## Inbox
 
@@ -75,70 +89,55 @@ Observed behavior:
 - A pill appears: **Filtered by Unread**.
 - The inbox list changes to show only matching messages.
 
-Tap the filter icon or the filter pill to manage or disable filtering. If an expected verification email is missing, check whether the inbox is filtered to unread only.
+Tap the filter icon or the filter pill to manage or disable filtering. If an expected email is missing, check whether the inbox is filtered to unread only. Change the filter only if necessary for the requested search.
 
-## Search
+## Search And Read
 
-Tap the bottom search control.
+Search UI behavior:
 
-Search behavior:
-
-- Keyboard appears.
+- Tapping the bottom search control brings up the keyboard.
 - Search can scope to **All Mailboxes** or **Current Mailbox** using the segmented control above results.
-- Typing a term shows structured suggestions:
-  - **Sender contains: [term]**.
-  - **Subject contains: [term]**.
-  - **Attachment name contains: [term]**.
-- Press the keyboard search key or choose a suggestion to run the query.
-- If no results are visible, clear the query and check mailbox/filter state.
+- Typing a term shows structured suggestions: **Sender contains: [term]**, **Subject contains: [term]**, **Attachment name contains: [term]**.
+- Suggestions are not final results; press the keyboard search key or choose a suggestion to run the query.
 
-Useful Craigslist-related search terms:
+Procedure:
 
-- `craigslist`
-- `robot`
-- `confirm`
-- `posting`
-- `verification`
+1. Navigate to the narrowest relevant mailbox using current labels.
+2. Check whether a filter is active. Change it only if necessary for the requested search.
+3. Focus Mail's search field, call `type_text(phone_id, query)`, and call `screenshot(phone_id)`.
+4. Verify the rendered query and selected mailbox scope. Do not report unrelated rows visible in the screenshot.
+5. Ask for authorization to run the verified search unless the user has already authorized that exact query and scope after seeing them.
+6. Run the search only after authorization, then call `screenshot(phone_id)`.
+7. Identify the requested result without describing unrelated results. Open it only when its relevance is clear and opening it does not cross the authentication boundary.
+8. Summarize only the content needed to answer the user's request, masking addresses unless the full address is specifically needed.
 
-## Compose
+If no result appears, refine the query within the same scope before widening the mailbox scope. Explain why a wider scope is needed before using it.
 
-Tap the compose icon in the lower area of the inbox or Mailboxes screen.
+## Compose A New Message
 
 Observed compose sheet:
 
 - Title: **New Message**.
 - Top-left **X** closes the draft.
-- Top-right send arrow is disabled until required fields are populated.
+- Top-right send arrow is disabled until required fields are populated, and may become active as soon as Mail thinks required fields are valid.
 - A **Send Later** tip card can appear; it says touch and hold Send to schedule.
 - **To:** row, with a **+** contact picker beside it.
-- **Cc/Bcc, From:** row showing the configured iCloud sender.
+- **Cc/Bcc, From:** row showing the configured sender account.
 - **Subject:** row.
 - Message body, often prefilled with **Sent from my iPhone**.
 
-If a draft is empty, tapping **X** dismisses it without a discard confirmation. If text has been entered, expect a save/discard prompt.
+Procedure:
 
-Do not tap the send arrow unless the user explicitly asks to send and the recipient, subject, and body have been verified.
+1. Open a new compose sheet using the currently visible Compose control.
+2. Focus **To**, call `type_text(phone_id, recipient)`, and call `screenshot(phone_id)` to verify the rendered recipient.
+3. Focus **Subject**, call `type_text(phone_id, subject)`, and call `screenshot(phone_id)` to verify the rendered subject.
+4. Focus the body, call `type_text(phone_id, body)`, and call `screenshot(phone_id)` to verify the complete rendered body.
+5. Review **To**, **Cc/Bcc** when present, **Subject**, and the final body. Resolve any ambiguity before proceeding.
+6. Show the user the exact recipient, subject, and final body, then request final confirmation to send. The user's initial request to send or draft the message is not final send confirmation.
+7. Do not tap Send until the user confirms after seeing that final preview.
+8. After confirmation, re-check that the composer is unchanged, tap Send, and call `screenshot(phone_id)` to verify the result.
 
-### Craigslist Reply Drafts
-
-When Craigslist opens Mail from listing **reply -> email**, the compose sheet may already contain:
-
-- A Craigslist relay-style recipient.
-- The listing title as the subject.
-- The Craigslist listing URL in the body.
-- The normal Mail signature.
-
-The body field is usually focused, and the send arrow may already be available. To inspect safely, tap **X** and choose **Delete Draft**. Choose **Save Draft** only if the user asks to keep it.
-
-After sending from a Craigslist compose sheet, Mail may return to a previously open Mail message instead of returning to Craigslist. If the user wants to keep browsing or replying to listings, reopen Craigslist directly.
-
-### Craigslist Listing Replies
-
-Incoming replies can show in the iCloud inbox as `craigslist [listing id]` or from a Craigslist relay-domain sender. Reply subjects can use `Re: [listing title]`.
-
-Search alert emails can look similar but are labeled **CL Search Alerts** and use subjects like `(# new results) [saved search name]`.
-
-If a poster asks for screening details such as direct email address, pets, number of residents, or current housing status, summarize the ask for the user. Do not provide direct personal contact details or extra screening details unless the user approves the reply content.
+The final send preview may include the full recipient address because the user must verify the exact destination. Continue masking addresses in unrelated summaries.
 
 ## Message Detail
 
@@ -157,100 +156,82 @@ Observed controls:
 
 ### Reply Action Sheet
 
-Tap the reply arrow at the bottom.
+Tapping the reply arrow shows: Reply, Reply All, Forward, Trash, Remind Me, Flag, Mark as Unread, Move Message, Move to Junk.
 
-Observed options:
+Do not choose any action from this sheet unless the user explicitly asks. Treat Reply All and Forward as distinct actions; never infer either from a request to reply.
 
-- Reply.
-- Reply All.
-- Forward.
-- Trash.
-- Remind Me.
-- Flag.
-- Mark as Unread.
-- Move Message.
-- Move to Junk.
+## Reply To A Message
 
-Do not choose any action from this sheet unless the user explicitly asks.
+1. Open only the relevant message and choose Reply only when requested.
+2. Verify the intended thread and recipient without reporting unrelated visible content.
+3. Focus the reply body, call `type_text(phone_id, reply)`, and call `screenshot(phone_id)` to verify the complete rendered reply.
+4. Show the user the exact recipient, subject or thread, and final reply body, then request final confirmation to send. An earlier request to reply is not final send confirmation.
+5. Do not tap Send until the user confirms after seeing that final preview.
+6. After confirmation, re-check that the reply is unchanged, tap Send, and call `screenshot(phone_id)` to verify the result.
 
-## Craigslist Verification Email Workflow
+## Drafts
 
-Use this flow when Craigslist sends a confirmation, account signup, posting, or verification email.
+- Preserve a draft by default. Do not discard a draft merely because it was opened for inspection.
+- If a compose sheet is empty, tapping **X** dismisses it without a discard confirmation. If text has been entered, expect a save/discard prompt; choose **Save Draft** unless the user has confirmed deletion of that exact draft.
+- Before saving a prepared draft, verify its recipient, subject, and body and obtain authorization for the Save action.
+- Before deleting or discarding any draft, show which draft will be affected and request confirmation immediately before deletion. An initial request to delete is not final confirmation.
+- If deletion is not confirmed, leave the draft unchanged or save it only with authorization.
+
+## Delete A Message
+
+1. Identify the exact message using only the minimum relevant sender, masked address, subject, and date information.
+2. Show the user which message will be deleted and request confirmation immediately before deletion. An initial deletion request is not final confirmation.
+3. Do not tap Trash, Delete, or an equivalent control until that confirmation is received.
+4. After confirmation, delete only the identified message and call `screenshot(phone_id)` to verify the result without reporting unrelated inbox content.
+
+## Craigslist Workflows
+
+### Craigslist Verification Email Workflow
+
+Craigslist can send confirmation, account signup, posting, or verification email. These messages contain authentication links (such as a **complete account sign-up** button) and sometimes codes, so the absolute authentication boundary applies.
 
 ```
 1. Open Mail -> screenshot to verify current screen
-2. If in a message or compose sheet, close/back out to the inbox
-3. Turn off filters if the expected email is missing
-4. Tap search and search All Mailboxes for craigslist
-5. If there are no results, try robot, confirm, posting, or verification
-6. Open only the Craigslist-related email
-7. Look for a confirmation link, code, or posting-management link
-8. Stop unless the user explicitly asked to tap the link, use the code, or continue the verification flow
+2. If in a message or compose sheet, back out to the inbox without discarding drafts
+3. Check filter state if the expected email is missing
+4. Search the narrowest relevant scope for craigslist (also try robot, confirm, posting, or verification)
+5. Confirm a matching Craigslist sender/subject row exists without opening unrelated messages
+6. Stop. Do not open the verification link, tap complete account sign-up, or read/enter any code
+7. Hand the device to the user to open the message and complete the verification themselves
+8. Resume only after the user confirms the flow is complete and a non-sensitive screen is visible; never screenshot while links or codes are visible
 ```
 
-### Observed Craigslist Account Signup Email
+Observed characteristics of the Craigslist account signup email: it arrives immediately after the user requests a login link in Craigslist, comes from a Craigslist automated sender, indicates **craigslist account sign-up**, contains a prominent **complete account sign-up** button, and includes a **didn't request this link?** link. All of these controls are user-only; never tap them.
 
-Observed during Craigslist posting exploration:
+### Craigslist Reply Drafts
 
-- The email arrived immediately after tapping **send me a link** in Craigslist.
-- Sender was a Craigslist automated sender.
-- Subject/snippet indicated **craigslist account sign-up** and **complete account sign-up**.
-- Message contained a prominent **complete account sign-up** button.
-- Tapping that button returned to Craigslist and opened the next account setup screen.
-- The message also included **didn't request this link?**; do not tap it unless the user wants to cancel/report the signup.
+When Craigslist opens Mail from listing **reply -> email**, the compose sheet may already contain:
 
-## Key Workflows
+- A Craigslist relay-style recipient.
+- The listing title as the subject.
+- The Craigslist listing URL in the body.
+- The normal Mail signature.
 
-### Find A Craigslist Email
+The body field is usually focused, and the send arrow may already be available. Do not tap Send without the final preview and fresh confirmation described above.
 
-```
-1. open_app("Mail") -> screenshot
-2. Navigate to Inbox if needed
-3. Disable unread filtering if active
-4. Tap search
-5. Search All Mailboxes for craigslist
-6. Open only a matching Craigslist sender/subject row
-7. screenshot -> verify the message is relevant before acting
-```
+Preserve the draft by default. When leaving the composer, save the draft if prompted; never choose **Delete Draft** automatically. Before deleting, identify the draft without exposing the poster's address (for example, by the Craigslist listing title) and obtain fresh confirmation for that exact draft.
 
-### Inspect A Craigslist Reply Draft Safely
+After sending from a Craigslist compose sheet, Mail may return to a previously open Mail message instead of returning to Craigslist. Do not summarize that message; reopen Craigslist directly if needed.
 
-```
-1. From Craigslist, tap reply -> email only when the user wants email contact
-2. screenshot -> verify Mail compose opened
-3. Review recipient type, subject, and body without recording private details
-4. Tap X
-5. Choose Delete Draft unless the user asks to send or save
-6. Reopen Craigslist if Mail does not return automatically
-```
+### Craigslist Listing Replies
 
-### Compose A New Email
+Incoming replies can show in the inbox as `craigslist [listing id]` or from a Craigslist relay-domain sender. Reply subjects can use `Re: [listing title]`.
 
-```
-1. Tap compose
-2. Fill To, Subject, and Body with user-approved content
-3. screenshot -> verify recipient, subject, and body
-4. Tap send only after explicit user instruction
-5. screenshot -> verify the compose sheet closed or message sent
-```
+Search alert emails can look similar but are labeled **CL Search Alerts** and use subjects like `(# new results) [saved search name]`.
 
-### Reply To A Message
+If a poster asks for screening details such as direct email address, pets, number of residents, or current housing status, summarize the ask for the user. Do not provide direct personal contact details or extra screening details unless the user approves the reply content.
 
-```
-1. Open the relevant message
-2. Tap the reply arrow
-3. Choose Reply only if the user asked to reply
-4. Paste user-approved reply content
-5. screenshot -> verify recipient/thread and body
-6. Tap send only after explicit user instruction
-```
+## Guardrails, Tips, And Gotchas
 
-## Tips And Gotchas
-
-- Apple Mail may show account-level prompts, such as adding the address to iMessage/FaceTime. Avoid changing those settings unless requested.
+- Treat Send and Delete as consequential actions that always require the just-in-time confirmations above.
+- Dismiss or leave account-level prompts unchanged unless the user explicitly asks to change that setting and the action does not cross the authentication boundary.
+- If the current screen, mailbox scope, recipient, or target message is ambiguous, stop and ask rather than acting on a guess.
 - A bottom-left filter can hide messages; check for **Filtered by Unread** if a message seems missing.
-- The send button is an arrow in the top-right of compose and may become active as soon as Mail thinks required fields are valid.
-- Empty compose drafts close immediately, but non-empty drafts may prompt to save or discard.
 - Search suggestions are not final results. Press the keyboard search key or choose a suggestion to run a search.
 - Craigslist replies and search alerts can share the same Craigslist icon in the inbox; use sender and subject snippets to avoid opening the wrong item.
 - Avoid opening unrelated personal messages. Search narrowly and verify sender/subject before opening.
