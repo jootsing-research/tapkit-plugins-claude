@@ -15,9 +15,7 @@ The **tapkit** plugin connects Claude to a real iPhone via [TapKit](https://tapk
 
 - "Take a screenshot of my phone"
 - "Open Settings and turn on Do Not Disturb"
-- "Order my usual from Uber Eats"
 - "Check the weather in Tokyo"
-- "Send a message on Telegram"
 
 The plugin ships with the [TapKit MCP server](https://github.com/Jootsing-Research/tapkit-mcp) (gestures, screenshots, app control) plus a set of [skills](plugins/tapkit/skills) that teach Claude how to navigate specific apps.
 
